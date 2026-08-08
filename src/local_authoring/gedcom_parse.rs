@@ -38,7 +38,7 @@ pub(super) struct MinimalGedcomFamily {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct MinimalGedcomEvent {
-    pub(super) kind: String,
+    pub(super) event_type: String,
     pub(super) date: Option<String>,
     pub(super) place: Option<String>,
     pub(super) notes: Vec<String>,
@@ -120,7 +120,7 @@ fn parse_minimal_gedcom(text: &str) -> MinimalGedcomDocument {
                     "BIRT" | "DEAT" | "RESI" => {
                         current_note_target = None;
                         current_event = Some(MinimalGedcomEvent {
-                            kind: match line.tag.as_str() {
+                            event_type: match line.tag.as_str() {
                                 "BIRT" => "birth".to_string(),
                                 "DEAT" => "death".to_string(),
                                 "RESI" => "residence".to_string(),

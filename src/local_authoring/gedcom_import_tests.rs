@@ -94,6 +94,10 @@ fn ingests_minimal_gedcom_into_world_records() {
     );
     let event = fs::read_to_string(world_root.join("events/births/1-jan-1900-birth-i1-0.md"))
         .expect("birth event");
+    assert!(event.contains("kind = \"event\""));
+    assert!(event.contains("type = \"birth\""));
+    assert!(event.contains("participants = [\"i1\"]"));
+    assert!(event.contains("places = [\"gedcom-place-example-town\"]"));
     assert!(event.contains("assertion:gedcom-1-jan-1900-birth-i1-date"));
     assert!(event.contains("assertion:gedcom-1-jan-1900-birth-i1-place"));
     assert!(event.contains("Birth note from GEDCOM\ncontinued birth note"));

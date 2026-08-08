@@ -156,7 +156,7 @@ fn write_gedcom_document_to_world(
             let event_slug = safe_slug(&format!(
                 "{}-{}-{}",
                 event.date.as_deref().unwrap_or("unknown-date"),
-                event.kind,
+                event.event_type,
                 gedcom_xref_slug(&individual.xref)
             ));
             let event_id = format!("event:{event_slug}");
@@ -175,7 +175,7 @@ fn write_gedcom_document_to_world(
                 world_root,
                 &world_root
                     .join("events")
-                    .join(event_kind_dir(&event.kind))
+                    .join(event_type_dir(&event.event_type))
                     .join(format!("{event_slug}-{index}.md")),
                 &event_markdown(
                     &event_slug,
@@ -348,7 +348,7 @@ fn gedcom_import_report_toml(
         escape_toml_basic(&import_source_slug(import_path)),
         escape_toml_basic(&relative_path_to_string(import_path)),
         escape_toml_basic(&relative_path_to_string(import_path)),
-        escape_toml_basic(source_id),
+        escape_toml_basic(local_reference_value(source_id)),
         escape_toml_basic(&report.parser),
         report.skipped_existing,
         report.people,
@@ -474,7 +474,7 @@ fn write_event_assertions(
             &world_root.join("assertions").join(format!("{slug}.md")),
             &assertion_markdown(
                 &assertion_id,
-                &format!("{}-date", event.kind),
+                &format!("{}-date", event.event_type),
                 &format!("{}#date", event_id),
                 date,
                 person_id,
@@ -501,7 +501,7 @@ fn write_event_assertions(
             &world_root.join("assertions").join(format!("{slug}.md")),
             &assertion_markdown(
                 &assertion_id,
-                &format!("{}-place", event.kind),
+                &format!("{}-place", event.event_type),
                 &format!("{}#place", event_id),
                 place,
                 person_id,
@@ -533,8 +533,8 @@ fn assertion_markdown(
         escape_toml_basic(kind),
         escape_toml_basic(target),
         escape_toml_basic(value),
-        escape_toml_basic(source_id),
-        escape_toml_basic(person_id),
+        escape_toml_basic(local_reference_value(source_id)),
+        escape_toml_basic(local_reference_value(person_id)),
     )
 }
 
@@ -554,28 +554,26 @@ fn event_markdown(
     let place = event
         .place
         .as_deref()
-        .and_then(|place| places.get(place).map(|slug| format!("place:{slug}")));
+        .and_then(|place| places.get(place).cloned());
     let places = place
         .as_deref()
-        .map(|place_id| {
-            format!(
-                "places = [{{ entity = \"{}\", role = \"place\" }}]\n",
-                escape_toml_basic(place_id)
-            )
-        })
+        .map(|place_id| format!("places = [\"{}\"]\n", escape_toml_basic(place_id)))
         .unwrap_or_else(|| "places = []\n".to_string());
     let assertions = toml_string_array(assertions);
     format!(
-        "+++\nschema_version = 1\nid = \"event:{}\"\nkind = \"{}\"\ntitle = \"{} event\"\n{}participants = [{{ entity = \"{}\", role = \"subject\" }}]\n{}assertions = {assertions}\nsources = [\"{}\"]\n+++\n\nImported from GEDCOM.{}\n",
+        "+++\nschema_version = 1\nid = \"event:{}\"\nkind = \"event\"\ntype = \"{}\"\n{}participants = [\"{}\"]\n{}assertions = {assertions}\nsources = [\"{}\"]\n+++\n\nImported from GEDCOM.{}\n",
         escape_toml_basic(slug),
-        escape_toml_basic(&event.kind),
-        escape_toml_basic(&event.kind),
+        escape_toml_basic(&event.event_type),
         time,
-        escape_toml_basic(person_id),
+        escape_toml_basic(local_reference_value(person_id)),
         places,
-        escape_toml_basic(source_id),
+        escape_toml_basic(local_reference_value(source_id)),
         notes_markdown_block(&event.notes),
     )
+}
+
+fn local_reference_value(id: &str) -> &str {
+    id.split_once(':').map(|(_, value)| value).unwrap_or(id)
 }
 
 fn notes_markdown_block(notes: &[String]) -> String {
@@ -600,8 +598,8 @@ fn toml_string_array(values: &[String]) -> String {
     format!("[{items}]")
 }
 
-fn event_kind_dir(kind: &str) -> &str {
-    match kind {
+fn event_type_dir(event_type: &str) -> &str {
+    match event_type {
         "birth" => "births",
         "death" => "deaths",
         "residence" => "residences",
