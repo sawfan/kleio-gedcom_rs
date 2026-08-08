@@ -3,4 +3,34 @@ name = "kleio-gedcom"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+path = "src/lib.rs"
+
+[features]
+default = []
+db = [
+    "dep:rusqlite",
+    "dep:sha2",
+    "dep:thiserror",
+    "dep:time",
+    "dep:uuid",
+]
+
 [dependencies]
+ged_io = { version = "0.14.5", features = ["json"] }
+kleio = { path = "../kleio" }
+rusqlite = { version = "0.37", features = ["bundled"], optional = true }
+serde = { version = "1", features = ["derive"] }
+sha2 = { version = "0.10", optional = true }
+thiserror = { version = "2", optional = true }
+time = { version = "0.3", features = ["formatting"], optional = true }
+toml = "0.8"
+uuid = { version = "1", features = ["v4", "serde"], optional = true }
+
+[[bin]]
+name = "kleio-gedcom"
+path = "src/main.rs"
+required-features = ["db"]
+
+[dev-dependencies]
+bzip2 = "0.5"
