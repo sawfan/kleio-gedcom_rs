@@ -425,7 +425,7 @@ fn person_markdown(id: &str, individual: &MinimalGedcomIndividual, source_id: &s
         .filter(|value| !value.is_empty())
         .unwrap_or_else(|| individual.xref.clone());
     let mut fields = format!(
-        "schema_version = 1\nid = \"{}\"\nkind = \"person\"\nprimary_name = \"{}\"\nsources = [\"{}\"]\n\n[metadata]\ngedcom_xref = \"{}\"\n",
+        "schema_version = 1\nid = \"{}\"\nkind = \"person\"\npreferred_name = \"{}\"\nsources = [\"{}\"]\n\n[metadata]\ngedcom_xref = \"{}\"\n",
         escape_toml_basic(id),
         escape_toml_basic(&name),
         escape_toml_basic(source_id),
@@ -442,7 +442,7 @@ fn person_markdown(id: &str, individual: &MinimalGedcomIndividual, source_id: &s
 
 fn place_markdown(id: &str, name: &str, source_id: &str) -> String {
     format!(
-        "+++\nschema_version = 1\nid = \"{}\"\nkind = \"place\"\nprimary_name = \"{}\"\nsources = [\"{}\"]\n+++\n\nImported from GEDCOM place text.\n",
+        "+++\nschema_version = 1\nid = \"{}\"\nkind = \"place\"\ntitle = \"{}\"\nsources = [\"{}\"]\n+++\n\nImported from GEDCOM place text.\n",
         escape_toml_basic(id),
         escape_toml_basic(name),
         escape_toml_basic(source_id),

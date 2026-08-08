@@ -535,12 +535,15 @@ fn individual_name(
 ) -> Vec<Name> {
     let Some(name) = individual.name.as_ref() else {
         return vec![Name {
+            usage: Some("imported".to_string()),
             display: individual
                 .xref
                 .as_deref()
                 .unwrap_or("Unnamed GEDCOM individual")
                 .to_string(),
+            full: None,
             given: None,
+            middle: None,
             surname: None,
             aliases: Vec::new(),
             provenance: provenance.clone(),
@@ -569,11 +572,14 @@ fn individual_name(
     }
 
     vec![Name {
+        usage: Some("imported".to_string()),
         display,
+        full: name.value.as_ref().map(|value| clean_gedcom_name(value)),
         given: name
             .given
             .clone()
             .or_else(|| individual.given_name().map(str::to_string)),
+        middle: None,
         surname: name
             .surname
             .clone()
