@@ -545,6 +545,7 @@ fn individual_name(
             given: None,
             middle: None,
             surname: None,
+            order: None,
             aliases: Vec::new(),
             provenance: provenance.clone(),
         }];
@@ -584,6 +585,7 @@ fn individual_name(
             .surname
             .clone()
             .or_else(|| individual.surname().map(str::to_string)),
+        order: None,
         aliases,
         provenance: provenance.clone(),
     }]
